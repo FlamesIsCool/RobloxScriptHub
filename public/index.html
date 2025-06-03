@@ -1,0 +1,500 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RoScripts - Roblox Script Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #0f1116;
+            color: #e2e8f0;
+        }
+        
+        .script-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .script-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(66, 153, 225, 0.3);
+        }
+        
+        .loader {
+            border-top-color: #4299e1;
+            animation: spinner 0.6s linear infinite;
+        }
+        
+        @keyframes spinner {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #1a202c;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #4299e1;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3182ce;
+        }
+        
+        .code-area {
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+        
+        .badge {
+            font-size: 0.65rem;
+            padding: 0.15rem 0.5rem;
+            border-radius: 9999px;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <nav class="bg-gray-900 border-b border-blue-900 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <span class="text-blue-500 text-2xl font-bold">Ro<span class="text-white">Scripts</span></span>
+                    </div>
+                    <div class="hidden md:block">
+                        <div class="ml-10 flex items-baseline space-x-4">
+                            <a href="#" class="bg-blue-800 text-white px-3 py-2 rounded-md text-sm font-medium" id="home-tab">Home</a>
+                            <a href="#" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium" id="popular-tab">Popular</a>
+                            <a href="#" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium" id="universal-tab">Universal</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex-1 flex justify-center px-2 lg:ml-6 lg:justify-end">
+                    <div class="max-w-lg w-full lg:max-w-xs">
+                        <label for="search" class="sr-only">Search</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-search text-gray-400"></i>
+                            </div>
+                            <input id="search" name="search" class="block w-full pl-10 pr-3 py-2 border border-transparent rounded-md leading-5 bg-gray-800 text-gray-300 placeholder-gray-400 focus:outline-none focus:bg-gray-700 focus:border-blue-500 focus:ring-blue-500 focus:text-white sm:text-sm" placeholder="Search scripts..." type="search">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile menu -->
+        <div class="md:hidden" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#" class="bg-blue-800 text-white block px-3 py-2 rounded-md text-base font-medium mobile-tab" data-tab="home">Home</a>
+                <a href="#" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium mobile-tab" data-tab="popular">Popular</a>
+                <a href="#" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium mobile-tab" data-tab="universal">Universal</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="bg-gray-800 py-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-3xl font-bold text-white">Roblox Script Hub</h1>
+            <p class="mt-2 text-lg text-gray-300">Find and copy the best Roblox scripts for your executor</p>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Loading indicator -->
+        <div id="loading" class="flex justify-center my-20">
+            <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-700 h-12 w-12"></div>
+        </div>
+
+        <!-- Scripts container -->
+        <div id="scripts-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden">
+            <!-- Scripts will be inserted here -->
+        </div>
+
+        <!-- Error message -->
+        <div id="error-message" class="hidden text-center py-10">
+            <i class="fas fa-exclamation-triangle text-yellow-500 text-4xl"></i>
+            <p class="mt-4 text-xl text-gray-300">Failed to load scripts. Please try again later.</p>
+            <button id="retry-button" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+                Retry
+            </button>
+        </div>
+    </main>
+
+    <!-- Script modal -->
+    <div id="script-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden">
+        <div class="bg-gray-800 rounded-lg max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden flex flex-col">
+            <div class="p-4 border-b border-gray-700 flex justify-between items-center">
+                <h3 id="modal-title" class="text-xl font-semibold text-white truncate">Script Details</h3>
+                <button id="close-modal" class="text-gray-400 hover:text-white">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="p-4 overflow-y-auto flex-grow">
+                <div class="mb-4">
+                    <div class="flex items-center mb-2">
+                        <img id="modal-game-image" src="" alt="Game" class="w-12 h-12 rounded mr-3 object-cover bg-gray-700">
+                        <div>
+                            <h4 id="modal-game-name" class="font-medium text-white">Game Name</h4>
+                            <div class="flex flex-wrap gap-2 mt-1">
+                                <span id="modal-verified" class="badge bg-green-900 text-green-300 hidden">
+                                    <i class="fas fa-check-circle mr-1"></i> Verified
+                                </span>
+                                <span id="modal-universal" class="badge bg-purple-900 text-purple-300 hidden">
+                                    <i class="fas fa-globe mr-1"></i> Universal
+                                </span>
+                                <span id="modal-patched" class="badge bg-red-900 text-red-300 hidden">
+                                    <i class="fas fa-times-circle mr-1"></i> Patched
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center text-sm text-gray-400 mt-2">
+                        <span class="mr-4"><i class="fas fa-eye mr-1"></i> <span id="modal-views">0</span> views</span>
+                        <span><i class="fas fa-calendar-alt mr-1"></i> <span id="modal-date">Unknown</span></span>
+                    </div>
+                </div>
+                <div class="relative">
+                    <pre id="modal-script" class="code-area bg-gray-900 text-gray-300 p-4 rounded overflow-x-auto text-sm h-80"></pre>
+                    <button id="copy-script" class="absolute top-2 right-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm">
+                        <i class="fas fa-copy mr-1"></i> Copy
+                    </button>
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-700 flex justify-end">
+                <button id="execute-button" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded mr-2">
+                    <i class="fas fa-play mr-1"></i> Execute (Demo)
+                </button>
+                <button id="close-modal-btn" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-gray-900 py-6 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <p class="text-center text-gray-400 text-sm">
+                This is a demo website for educational purposes only. All scripts are fetched from ScriptBlox API.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // DOM Elements
+        const scriptsContainer = document.getElementById('scripts-container');
+        const loadingIndicator = document.getElementById('loading');
+        const errorMessage = document.getElementById('error-message');
+        const retryButton = document.getElementById('retry-button');
+        const searchInput = document.getElementById('search');
+        const modal = document.getElementById('script-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalGameImage = document.getElementById('modal-game-image');
+        const modalGameName = document.getElementById('modal-game-name');
+        const modalVerified = document.getElementById('modal-verified');
+        const modalUniversal = document.getElementById('modal-universal');
+        const modalPatched = document.getElementById('modal-patched');
+        const modalViews = document.getElementById('modal-views');
+        const modalDate = document.getElementById('modal-date');
+        const modalScript = document.getElementById('modal-script');
+        const copyScriptBtn = document.getElementById('copy-script');
+        const closeModalBtns = document.querySelectorAll('#close-modal, #close-modal-btn');
+        const executeButton = document.getElementById('execute-button');
+        
+        // Tab navigation
+        const tabs = {
+            home: { url: 'https://scriptblox.com/api/script/fetch', active: true },
+            popular: { url: 'https://scriptblox.com/api/script/fetch?filters=popular', active: false },
+            universal: { url: 'https://scriptblox.com/api/script/fetch?filters=universal', active: false }
+        };
+        
+        let currentTab = 'home';
+        let currentScripts = [];
+        
+        // Fetch scripts based on the active tab
+        function fetchScripts(tabName) {
+            currentTab = tabName;
+            
+            // Update tab UI
+            document.querySelectorAll('[id$="-tab"]').forEach(tab => {
+                if (tab.id === `${tabName}-tab`) {
+                    tab.classList.remove('text-gray-300', 'hover:bg-gray-700', 'hover:text-white');
+                    tab.classList.add('bg-blue-800', 'text-white');
+                } else {
+                    tab.classList.remove('bg-blue-800', 'text-white');
+                    tab.classList.add('text-gray-300', 'hover:bg-gray-700', 'hover:text-white');
+                }
+            });
+            
+            document.querySelectorAll('.mobile-tab').forEach(tab => {
+                if (tab.dataset.tab === tabName) {
+                    tab.classList.remove('text-gray-300', 'hover:bg-gray-700', 'hover:text-white');
+                    tab.classList.add('bg-blue-800', 'text-white');
+                } else {
+                    tab.classList.remove('bg-blue-800', 'text-white');
+                    tab.classList.add('text-gray-300', 'hover:bg-gray-700', 'hover:text-white');
+                }
+            });
+            
+            // Show loading indicator
+            loadingIndicator.classList.remove('hidden');
+            scriptsContainer.classList.add('hidden');
+            errorMessage.classList.add('hidden');
+            
+            // Fetch scripts from API
+            fetch(tabs[tabName].url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    currentScripts = data.result.scripts;
+                    displayScripts(currentScripts);
+                    loadingIndicator.classList.add('hidden');
+                    scriptsContainer.classList.remove('hidden');
+                })
+                .catch(error => {
+                    console.error('Error fetching scripts:', error);
+                    loadingIndicator.classList.add('hidden');
+                    errorMessage.classList.remove('hidden');
+                });
+        }
+        
+        // Display scripts in the container
+        function displayScripts(scripts) {
+            scriptsContainer.innerHTML = '';
+            
+            if (scripts.length === 0) {
+                const noResults = document.createElement('div');
+                noResults.className = 'col-span-full text-center py-10';
+                noResults.innerHTML = `
+                    <i class="fas fa-search text-gray-500 text-4xl"></i>
+                    <p class="mt-4 text-xl text-gray-400">No scripts found</p>
+                `;
+                scriptsContainer.appendChild(noResults);
+                return;
+            }
+            
+            scripts.forEach((script, index) => {
+                const scriptCard = document.createElement('div');
+                scriptCard.className = 'script-card bg-gray-800 rounded-lg overflow-hidden border border-gray-700 hover:border-blue-500';
+                
+                // Format date
+                const createdDate = new Date(script.createdAt);
+                const formattedDate = createdDate.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+                
+                scriptCard.innerHTML = `
+                    <div class="relative">
+                        <div class="h-40 bg-gray-700 flex items-center justify-center">
+                            ${script.game && script.game.imageUrl ? 
+                                `<img src="${script.game.imageUrl}" alt="${script.game.name}" class="w-full h-full object-cover">` :
+                                `<div class="text-4xl text-gray-500"><i class="fas fa-gamepad"></i></div>`
+                            }
+                        </div>
+                        <div class="absolute top-2 right-2 flex flex-col gap-2">
+                            ${script.verified ? 
+                                `<span class="badge bg-green-900 text-green-300" title="Verified">
+                                    <i class="fas fa-check-circle"></i>
+                                </span>` : ''
+                            }
+                            ${script.isUniversal ? 
+                                `<span class="badge bg-purple-900 text-purple-300" title="Universal">
+                                    <i class="fas fa-globe"></i>
+                                </span>` : ''
+                            }
+                            ${script.isPatched ? 
+                                `<span class="badge bg-red-900 text-red-300" title="Patched">
+                                    <i class="fas fa-times-circle"></i>
+                                </span>` : ''
+                            }
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-semibold text-white text-lg mb-1 truncate" title="${script.title}">${script.title}</h3>
+                        <p class="text-sm text-gray-400 mb-3 truncate">${script.game ? script.game.name : 'Unknown Game'}</p>
+                        <div class="flex justify-between items-center text-xs text-gray-400">
+                            <span><i class="fas fa-eye mr-1"></i> ${script.views.toLocaleString()}</span>
+                            <span><i class="fas fa-calendar-alt mr-1"></i> ${formattedDate}</span>
+                        </div>
+                    </div>
+                    <div class="px-4 pb-4">
+                        <button class="view-script-btn w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded transition" data-index="${index}">
+                            View Script
+                        </button>
+                    </div>
+                `;
+                
+                scriptsContainer.appendChild(scriptCard);
+            });
+            
+            // Add event listeners to view script buttons
+            document.querySelectorAll('.view-script-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const scriptIndex = parseInt(button.dataset.index);
+                    openScriptModal(scripts[scriptIndex]);
+                });
+            });
+        }
+        
+        // Open script modal
+        function openScriptModal(script) {
+            modalTitle.textContent = script.title;
+            
+            // Set game image and name
+            if (script.game) {
+                modalGameImage.src = script.game.imageUrl || '';
+                modalGameName.textContent = script.game.name;
+            } else {
+                modalGameImage.src = '';
+                modalGameName.textContent = 'Unknown Game';
+            }
+            
+            // Set badges
+            modalVerified.classList.toggle('hidden', !script.verified);
+            modalUniversal.classList.toggle('hidden', !script.isUniversal);
+            modalPatched.classList.toggle('hidden', !script.isPatched);
+            
+            // Set views and date
+            modalViews.textContent = script.views.toLocaleString();
+            
+            const createdDate = new Date(script.createdAt);
+            modalDate.textContent = createdDate.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+            
+            // Set script content
+            modalScript.textContent = script.script || 'Script content not available';
+            
+            // Show modal
+            modal.classList.remove('hidden');
+        }
+        
+        // Close modal
+        closeModalBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                modal.classList.add('hidden');
+            });
+        });
+        
+        // Copy script to clipboard
+        copyScriptBtn.addEventListener('click', () => {
+            const scriptText = modalScript.textContent;
+            navigator.clipboard.writeText(scriptText).then(() => {
+                const originalText = copyScriptBtn.innerHTML;
+                copyScriptBtn.innerHTML = '<i class="fas fa-check mr-1"></i> Copied!';
+                copyScriptBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                copyScriptBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+                
+                setTimeout(() => {
+                    copyScriptBtn.innerHTML = originalText;
+                    copyScriptBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+                    copyScriptBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                }, 2000);
+            });
+        });
+        
+        // Execute button (demo)
+        executeButton.addEventListener('click', () => {
+            const originalText = executeButton.innerHTML;
+            executeButton.innerHTML = '<i class="fas fa-check-circle mr-1"></i> Demo Only';
+            executeButton.classList.remove('bg-green-600', 'hover:bg-green-700');
+            executeButton.classList.add('bg-gray-600', 'hover:bg-gray-700');
+            
+            setTimeout(() => {
+                executeButton.innerHTML = originalText;
+                executeButton.classList.remove('bg-gray-600', 'hover:bg-gray-700');
+                executeButton.classList.add('bg-green-600', 'hover:bg-green-700');
+            }, 2000);
+        });
+        
+        // Search functionality
+        searchInput.addEventListener('input', debounce(() => {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            
+            if (searchTerm === '') {
+                displayScripts(currentScripts);
+                return;
+            }
+            
+            const filteredScripts = currentScripts.filter(script => {
+                const titleMatch = script.title.toLowerCase().includes(searchTerm);
+                const gameMatch = script.game && script.game.name.toLowerCase().includes(searchTerm);
+                return titleMatch || gameMatch;
+            });
+            
+            displayScripts(filteredScripts);
+        }, 300));
+        
+        // Debounce function for search
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+        
+        // Tab click events
+        document.getElementById('home-tab').addEventListener('click', (e) => {
+            e.preventDefault();
+            fetchScripts('home');
+        });
+        
+        document.getElementById('popular-tab').addEventListener('click', (e) => {
+            e.preventDefault();
+            fetchScripts('popular');
+        });
+        
+        document.getElementById('universal-tab').addEventListener('click', (e) => {
+            e.preventDefault();
+            fetchScripts('universal');
+        });
+        
+        // Mobile tab click events
+        document.querySelectorAll('.mobile-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                e.preventDefault();
+                fetchScripts(tab.dataset.tab);
+            });
+        });
+        
+        // Retry button
+        retryButton.addEventListener('click', () => {
+            fetchScripts(currentTab);
+        });
+        
+        // Close modal when clicking outside
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.add('hidden');
+            }
+        });
+        
+        // Initialize the page
+        fetchScripts('home');
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'949b0e0226a1a51c',t:'MTc0ODkxMDM0MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
